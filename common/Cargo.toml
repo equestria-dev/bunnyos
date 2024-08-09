@@ -1,0 +1,8 @@
+[package]
+name = "bunnyos-common"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+uefi = { version = "0.28.0", features = ["alloc"] }
+uefi-services = { version = "0.25.0", features = [], default-features = false }

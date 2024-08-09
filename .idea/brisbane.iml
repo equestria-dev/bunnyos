@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="EMPTY_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/commands/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/toolkit/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/userland/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/graphics/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/bootloader/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/demo/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libbrisbane/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/kernel/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/common/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/init/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/shell/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/std-entry/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/std/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/esp" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/firmware" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
