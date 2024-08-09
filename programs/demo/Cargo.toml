@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bstd = { path = "../std" }
+bstd = { path = "../../libs/std" }
 uefi = { version = "0.28.0", features = ["alloc"] }

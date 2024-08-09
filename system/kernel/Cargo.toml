@@ -1,6 +1,6 @@
 [package]
-name = "bunnyloader"
-version = "0.3.0"
+name = "bunnycore"
+version = "0.1.2"
 edition = "2021"
 
 [dependencies]
@@ -8,7 +8,7 @@ uefi = { version = "0.28.0", features = ["alloc"] }
 uefi-services = { version = "0.25.0", features = [], default-features = false }
 log = "0.4.21"
 build-info = { version = "0.0.36", default-features = false }
-bunnyos-common = { path = "../common" }
+bunnyos-common = { path = "../../libs/common" }
 
 [build-dependencies]
 build-info-build = "0.0.36"

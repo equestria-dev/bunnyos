@@ -6,15 +6,15 @@
       <sourceFolder url="file://$MODULE_DIR$/toolkit/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/userland/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/graphics/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/bootloader/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/demo/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/libbrisbane/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/kernel/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/common/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/init/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/shell/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/std-entry/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/std/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/common/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/std-entry/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/libs/std/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/programs/demo/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/programs/sh/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/system/bootloader/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/system/init/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/system/kernel/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/esp" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/firmware" />
