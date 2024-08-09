@@ -7,17 +7,20 @@
       <sourceFolder url="file://$MODULE_DIR$/userland/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/graphics/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/libbrisbane/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/libs/common/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/libs/std-entry/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/libs/std/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/programs/demo/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/programs/sh/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/system/bootloader/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/system/init/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/system/kernel/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/os/libs/common/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/os/libs/std-entry/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/os/libs/std/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/os/programs/demo/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/os/programs/sh/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/os/system/bootloader/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/os/system/init/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/os/system/kernel/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tools/mkbimg/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/esp" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/firmware" />
+      <excludeFolder url="file://$MODULE_DIR$/os/target" />
+      <excludeFolder url="file://$MODULE_DIR$/tools/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

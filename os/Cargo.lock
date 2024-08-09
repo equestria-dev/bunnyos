@@ -589,7 +589,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "shell"
+name = "sh"
 version = "0.1.0"
 dependencies = [
  "build-info",
