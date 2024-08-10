@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies]
 uefi = { version = "0.28.0", features = ["alloc"] }
 uefi-services = { version = "0.25.0", features = [], default-features = false }
+elf = { version = "0.7.4", default-features = false }
+crc = "3.2.1"

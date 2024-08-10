@@ -78,6 +78,42 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
                         println!("cd: Too many arguments");
                     }
                 },
+                "which" => {
+                    for name in cmd.names {
+                        let mut path: PathBuf = PathBuf::from(cstr16!("/bunny/bin"));
+
+                        if name.starts_with("/") && name.len() > 1 {
+                            let mut buf = vec![0; name.len() + 1];
+                            path = PathBuf::from(cstr16!("/bunny"));
+                            path.push(PathBuf::from(CStr16::from_str_with_buf(&name[1..], &mut buf).unwrap()));
+                        } else if name.starts_with("./") && name.len() > 2 {
+                            let mut buf = vec![0; core.fs.get_real_cwd().len() + 1];
+                            path = PathBuf::from(CStr16::from_str_with_buf(&core.fs.get_real_cwd(), &mut buf).unwrap());
+
+                            let mut buf = vec![0; name.len() + 1];
+                            path.push(PathBuf::from(CStr16::from_str_with_buf(&name, &mut buf).unwrap()));
+                        } else {
+                            let mut buf = vec![0; name.len() + 1];
+                            path.push(PathBuf::from(CStr16::from_str_with_buf(&name, &mut buf).unwrap()));
+                        }
+
+                        if core.fs.file_exists(&path.to_string()) && core.fs.is_file(&path.to_string()) {
+                            let path = path.to_string();
+                            if path.starts_with("\\bunny") {
+                                let path = path[6..].replace("\\", "/");
+                                println!("{}", if path.trim() == "" {
+                                    String::from("/")
+                                } else {
+                                    path
+                                });
+                            } else {
+                                println!("//?{}", path.replace("\\", "/"))
+                            }
+                        } else {
+                            println!("{name} not found");
+                        }
+                    }
+                }
                 _ => {
                     core.set_shared_variable("argv", cmd.to_bytes().as_slice()).unwrap();
                     let mut path: PathBuf = PathBuf::from(cstr16!("/bunny/bin"));

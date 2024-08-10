@@ -1,6 +1,7 @@
 #![no_main]
 #![no_std]
 
+use alloc::format;
 use alloc::string::{String, ToString};
 use uefi::prelude::*;
 use uefi::{print, println};
@@ -36,17 +37,14 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
     loop {
         println!();
 
-        if let Err(e) = core.execute_kmode_binary(&path, false) {
-            match e {
-                _ => {
-                    println!("Could not run command interpreter at {path}.");
-                    loop {
-                        print!("Please enter the path to a valid command interpreter: ");
-                        path = core.readline();
-                        if path.trim() != "" {
-                            break;
-                        }
-                    }
+        let string = format!("\\bunny{}", path.replace("/", "\\"));
+        if let Err(_) = core.execute_user_binary(&string) {
+            println!("Could not run command interpreter at {path}.");
+            loop {
+                print!("Please enter the path to a valid command interpreter: ");
+                path = core.readline();
+                if path.trim() != "" {
+                    break;
                 }
             }
         } else {

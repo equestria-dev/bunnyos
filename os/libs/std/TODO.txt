@@ -2,6 +2,7 @@ TO IMPLEMENT
 - arch
 - env
 - fs
+- io
 - os
 - path
 - prelude
@@ -84,5 +85,4 @@ MAYBE IMPLEMENT
 - thread_local!?
 
 NOT IMPLEMENTING
-- io
 - net

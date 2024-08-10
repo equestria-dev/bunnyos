@@ -35,7 +35,7 @@ impl CoreFileSystem {
                 cwd
             }
         } else {
-            format!("//?{}", self.cwd[6..].replace("\\", "/"))
+            format!("//?{}", self.cwd.replace("\\", "/"))
         }
     }
 

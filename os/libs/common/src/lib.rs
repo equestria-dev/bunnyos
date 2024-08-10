@@ -16,6 +16,9 @@ use uefi::table::runtime::{VariableAttributes, VariableVendor};
 use crate::fs::CoreFileSystem;
 
 use core::panic::PanicInfo;
+use elf::{ElfBytes, ParseError};
+use elf::endian::AnyEndian;
+use elf::note::Note;
 use uefi::proto::console::text::Output;
 use uefi::println;
 
@@ -30,7 +33,7 @@ static mut FATAL_PANIC: bool = false;
 pub const GUID: Guid = guid!("cf3dd8e5-823e-4d06-8caf-d0fd9e49f588");
 pub const VENDOR: VariableVendor = VariableVendor(GUID);
 pub const OS_VERSION: &str = "0.1";
-pub const SUPPORTED_ABI: [u8; 1] = [1];
+pub const SUPPORTED_ABI: [u32; 1] = [1];
 pub const DEFAULT_SHELL: &str = "/bin/sh";
 pub const DEFAULT_KERNEL: &str = "/boot/kernel";
 
@@ -191,37 +194,48 @@ impl CoreServices {
 
         match binary {
             Ok(data) => {
-                match boot_services.load_image(boot_services.image_handle(), LoadImageSource::FromBuffer {
-                    buffer: data.as_slice(),
-                    file_path: Some(&**loaded_image)
-                }) {
-                    Ok(handle) => {
-                        match boot_services.start_image(handle) {
-                            Ok(_) => if strict {
-                                panic!("Attempted to kill!")
-                            } else {
-                                Err(ExecBinaryError::Finished)
-                            }
-                            Err(e) => {
-                                match e.status() {
-                                    Status::UNSUPPORTED => if strict {
-                                        panic!("Attempted to kill!")
-                                    } else {
-                                        Err(ExecBinaryError::Unsupported)
-                                    },
-                                    _ => if strict {
-                                        panic!("Attempted to kill! - Run error: {:?}", e)
-                                    } else {
-                                        Err(ExecBinaryError::Runtime(e))
+                if let Ok(data) = self.elf_to_pe(data.as_slice(), ElfContext::Kernel) {
+                    match boot_services.load_image(boot_services.image_handle(), LoadImageSource::FromBuffer {
+                        buffer: data.as_slice(),
+                        file_path: Some(&**loaded_image)
+                    }) {
+                        Ok(handle) => {
+                            match boot_services.start_image(handle) {
+                                Ok(_) => if strict {
+                                    panic!("Attempted to kill!")
+                                } else {
+                                    Err(ExecBinaryError::Finished)
+                                }
+                                Err(e) => {
+                                    match e.status() {
+                                        Status::UNSUPPORTED => if strict {
+                                            panic!("Attempted to kill!")
+                                        } else {
+                                            Err(ExecBinaryError::Unsupported)
+                                        },
+                                        _ => if strict {
+                                            panic!("Attempted to kill! - Run error: {:?}", e)
+                                        } else {
+                                            Err(ExecBinaryError::Runtime(e))
+                                        }
                                     }
                                 }
                             }
+                        },
+                        Err(e) => if strict {
+                            panic!("Attempted to kill! - Load error: {:?}", e)
+                        } else {
+                            match e.status() {
+                                Status::UNSUPPORTED => Err(ExecBinaryError::Unsupported),
+                                _ => Err(ExecBinaryError::Load(e))
+                            }
                         }
-                    },
-                    Err(e) => if strict {
-                        panic!("Attempted to kill! - Load error: {:?}", e)
+                    }
+                } else {
+                    if strict {
+                        panic!("Invalid executable")
                     } else {
-                        Err(ExecBinaryError::Load(e))
+                        Err(ExecBinaryError::Unsupported)
                     }
                 }
             },
@@ -259,7 +273,7 @@ impl CoreServices {
     fn get_user_binary(&self, path: &str) -> FileSystemResult<Vec<u8>> {
         let boot_services = self.system_table.boot_services();
         let mut buf: Vec<u16> = vec![0; path.len() + 1];
-        let cstr16 = CStr16::from_str_with_buf(path, &mut buf).unwrap();
+        let cstr16 = CStr16::from_str_with_buf(&path, &mut buf).unwrap();
         let path: CString16 = CString16::try_from(cstr16).unwrap();
         let fs: ScopedProtocol<SimpleFileSystem> = boot_services.get_image_file_system(boot_services.image_handle()).unwrap();
         let mut fs = uefi::fs::FileSystem::new(fs);
@@ -277,22 +291,29 @@ impl CoreServices {
 
         match binary {
             Ok(data) => {
-                match boot_services.load_image(boot_services.image_handle(), LoadImageSource::FromBuffer {
-                    buffer: data.as_slice(),
-                    file_path: Some(&**loaded_image)
-                }) {
-                    Ok(handle) => {
-                        match boot_services.start_image(handle) {
-                            Ok(_) => Err(ExecBinaryError::Finished),
-                            Err(e) => {
-                                match e.status() {
-                                    Status::UNSUPPORTED => Err(ExecBinaryError::Unsupported),
-                                    _ => Err(ExecBinaryError::Runtime(e))
+                if let Ok(data) = self.elf_to_pe(data.as_slice(), ElfContext::User) {
+                    match boot_services.load_image(boot_services.image_handle(), LoadImageSource::FromBuffer {
+                        buffer: data.as_slice(),
+                        file_path: Some(&**loaded_image)
+                    }) {
+                        Ok(handle) => {
+                            match boot_services.start_image(handle) {
+                                Ok(_) => Err(ExecBinaryError::Finished),
+                                Err(e) => {
+                                    match e.status() {
+                                        Status::UNSUPPORTED => Err(ExecBinaryError::Unsupported),
+                                        _ => Err(ExecBinaryError::Runtime(e))
+                                    }
                                 }
                             }
+                        },
+                        Err(e) => match e.status() {
+                            Status::UNSUPPORTED => Err(ExecBinaryError::Unsupported),
+                            _ => Err(ExecBinaryError::Load(e))
                         }
-                    },
-                    Err(e) => Err(ExecBinaryError::Load(e))
+                    }
+                } else {
+                    Err(ExecBinaryError::Unsupported)
                 }
             },
             Err(e) => {
@@ -321,6 +342,64 @@ impl CoreServices {
     pub fn firmware_revision(&self) -> u32 {
         self.system_table.firmware_revision()
     }
+
+    pub fn elf_to_pe(&self, elf: &[u8], expected_context: ElfContext) -> Result<Vec<u8>, ElfError> {
+        let expected_context = expected_context as u32;
+        let file = ElfBytes::<AnyEndian>::minimal_parse(elf)?;
+
+        let version_header = file.section_header_by_name(".note.tag")?.ok_or(ElfError::SectionNotFound)?;
+        match file.section_data_as_notes(&version_header)?.next().ok_or(ElfError::SectionNotFound)? {
+            Note::GnuAbiTag(_) => Err(ElfError::InvalidPlatform),
+            Note::GnuBuildId(_) => Err(ElfError::InvalidPlatform),
+            Note::Unknown(version) => {
+                if version.n_type == 1 && version.name == "BunnyOS" {
+                    let data = version.desc;
+
+                    let context_bytes = [data[4], data[5], data[6], data[7]];
+                    let context = u32::from_le_bytes(context_bytes);
+
+                    let abi_version_bytes = [data[8], data[9], data[10], data[11]];
+                    let abi_version = u32::from_le_bytes(abi_version_bytes);
+
+                    let checksum_bytes = [data[12], data[13], data[14], data[15]];
+                    let checksum = u32::from_le_bytes(checksum_bytes);
+
+                    let source_header = file.section_header_by_name(".text")?.ok_or(ElfError::SectionNotFound)?;
+                    let data = file.section_data(&source_header)?;
+
+                    let crc: crc::Crc<u32> = crc::Crc::<u32>::new(&crc::CRC_32_BZIP2);
+                    let calculated_checksum = crc.checksum(&data.0);
+
+                    if context != expected_context {
+                        Err(ElfError::InvalidContext)
+                    } else if !SUPPORTED_ABI.contains(&abi_version) {
+                        Err(ElfError::UnsupportedABI)
+                    } else if calculated_checksum != checksum {
+                        Err(ElfError::Corrupted)
+                    } else {
+                        Ok(Vec::from(data.0))
+                    }
+                } else {
+                    Err(ElfError::InvalidPlatform)
+                }
+            }
+        }
+    }
+}
+
+pub enum ElfError {
+    Parse(ParseError),
+    SectionNotFound,
+    InvalidPlatform,
+    InvalidContext,
+    UnsupportedABI,
+    Corrupted
+}
+
+impl From<ParseError> for ElfError {
+    fn from(value: ParseError) -> Self {
+        Self::Parse(value)
+    }
 }
 
 pub unsafe fn transfer_system_table(st: SystemTable<Boot>, h: Handle, build_info: String) {
@@ -339,4 +418,11 @@ pub enum ExecBinaryError {
     Load(Error),
     ReadIO(IoError),
     ReadFS(uefi::fs::Error),
+}
+
+#[repr(u32)]
+#[derive(Debug)]
+pub enum ElfContext {
+    Kernel = 1,
+    User = 2
 }

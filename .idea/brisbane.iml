@@ -16,6 +16,7 @@
       <sourceFolder url="file://$MODULE_DIR$/os/system/init/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/os/system/kernel/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tools/mkbimg/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tools/mkbelf/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/esp" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/firmware" />

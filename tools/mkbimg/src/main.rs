@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::PathBuf;
+use mkbelf::pe_to_elf;
 
 fn place(source: &str, target: &str) {
     println!("{source}");
@@ -31,9 +32,11 @@ fn main() {
 
     dir("./esp/bunny/boot");
     place("./os/target/x86_64-unknown-uefi/debug/bunnycore.efi", "./esp/bunny/boot/kernel");
+    pe_to_elf("./esp/bunny/boot/kernel", 1);
 
     dir("./esp/bunny/bin");
     place("./os/target/x86_64-unknown-uefi/debug/rabbinit.efi", "./esp/bunny/bin/init");
+    pe_to_elf("./esp/bunny/bin/init", 1);
 
     for program in fs::read_dir("./os/programs").unwrap() {
         let entry = program.unwrap();
@@ -42,5 +45,6 @@ fn main() {
 
         place(&format!("./os/target/x86_64-unknown-uefi/debug/{name}.efi"),
         &format!("./esp/bunny/bin/{name}"));
+        pe_to_elf(&format!("./esp/bunny/bin/{name}"), 2);
     }
 }
