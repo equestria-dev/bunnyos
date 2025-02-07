@@ -33,9 +33,9 @@ static mut FATAL_PANIC: bool = false;
 pub const GUID: Guid = guid!("cf3dd8e5-823e-4d06-8caf-d0fd9e49f588");
 pub const VENDOR: VariableVendor = VariableVendor(GUID);
 pub const OS_VERSION: &str = "0.1";
-pub const SUPPORTED_ABI: [u32; 1] = [1];
-pub const DEFAULT_SHELL: &str = "/bin/sh";
-pub const DEFAULT_KERNEL: &str = "/boot/kernel";
+pub const SUPPORTED_ABI: [u32; 1] = [2];
+pub const DEFAULT_SHELL: &str = "/System/Programs/sh";
+pub const DEFAULT_KERNEL: &str = "/System/Kernel";
 
 pub struct CoreServices {
     system_table: SystemTable<Boot>,
@@ -83,6 +83,17 @@ impl CoreServices {
         Self {
             fs: CoreFileSystem::from(value.unsafe_clone()),
             system_table: value,
+        }
+    }
+
+    pub unsafe fn transfer_system_table(&mut self, h: Handle, fallback_build_info: String) {
+        SYSTEM_TABLE = Some(self.get_system_table());
+        HANDLE = Some(h);
+        BUILD_INFO = Some(fallback_build_info);
+        if let Ok((data, _)) = self.get_shared_variable("Russet.OSString") {
+            if let Ok(string) = String::from_utf8(data) {
+                BUILD_INFO = Some(string);
+            }
         }
     }
 
@@ -174,7 +185,7 @@ impl CoreServices {
 
     fn get_kernel_binary(&self, path: &str) -> FileSystemResult<Vec<u8>> {
         let boot_services = self.system_table.boot_services();
-        let string = format!("\\bunny{}", path.replace("/", "\\"));
+        let string = format!("\\rootfs{}", path.replace("/", "\\"));
         let mut buf: Vec<u16> = vec![0; string.len() + 1];
         let cstr16 = CStr16::from_str_with_buf(&string, &mut buf).unwrap();
         let path: CString16 = CString16::try_from(cstr16).unwrap();
@@ -202,19 +213,19 @@ impl CoreServices {
                         Ok(handle) => {
                             match boot_services.start_image(handle) {
                                 Ok(_) => if strict {
-                                    panic!("Attempted to kill!")
+                                    panic!("CRITICAL_PROCESS_DIED")
                                 } else {
                                     Err(ExecBinaryError::Finished)
                                 }
                                 Err(e) => {
                                     match e.status() {
                                         Status::UNSUPPORTED => if strict {
-                                            panic!("Attempted to kill!")
+                                            panic!("CRITICAL_PROCESS_DIED")
                                         } else {
                                             Err(ExecBinaryError::Unsupported)
                                         },
                                         _ => if strict {
-                                            panic!("Attempted to kill! - Run error: {:?}", e)
+                                            panic!("CRITICAL_PROCESS_DIED (RUN: {:?})", e)
                                         } else {
                                             Err(ExecBinaryError::Runtime(e))
                                         }
@@ -223,7 +234,7 @@ impl CoreServices {
                             }
                         },
                         Err(e) => if strict {
-                            panic!("Attempted to kill! - Load error: {:?}", e)
+                            panic!("CRITICAL_PROCESS_DIED (LOAD: {:?})", e)
                         } else {
                             match e.status() {
                                 Status::UNSUPPORTED => Err(ExecBinaryError::Unsupported),
@@ -233,7 +244,7 @@ impl CoreServices {
                     }
                 } else {
                     if strict {
-                        panic!("Invalid executable")
+                        panic!("BOUND_IMAGE_UNSUPPORTED")
                     } else {
                         Err(ExecBinaryError::Unsupported)
                     }
@@ -244,24 +255,24 @@ impl CoreServices {
                     Io(e) => {
                         match e.uefi_error.status() {
                             Status::NOT_FOUND => if strict {
-                                panic!("Attempted to kill! - Not found")
+                                panic!("FILE_INITIALIZATION_FAILED")
                             } else {
                                 Err(ExecBinaryError::NotFound)
                             },
                             Status::OUT_OF_RESOURCES => if strict {
-                                panic!("Out of memory!")
+                                panic!("MEMORY_MANAGEMENT")
                             } else {
                                 Err(ExecBinaryError::OutOfMemory)
                             },
                             _ => if strict {
-                                panic!("Attempted to kill! - Read error: {:?}", e)
+                                panic!("CRITICAL_PROCESS_DIED (READ: {:?})", e)
                             } else {
                                 Err(ExecBinaryError::ReadIO(e))
                             }
                         }
                     },
                     _ => if strict {
-                        panic!("Attempted to kill! - Read error: {:?}", e)
+                        panic!("CRITICAL_PROCESS_DIED (LOAD: {:?})", e)
                     } else {
                         Err(ExecBinaryError::ReadFS(e))
                     }
@@ -352,7 +363,7 @@ impl CoreServices {
             Note::GnuAbiTag(_) => Err(ElfError::InvalidPlatform),
             Note::GnuBuildId(_) => Err(ElfError::InvalidPlatform),
             Note::Unknown(version) => {
-                if version.n_type == 1 && version.name == "BunnyOS" {
+                if version.n_type == 1 && version.name == "Russet " {
                     let data = version.desc;
 
                     let context_bytes = [data[4], data[5], data[6], data[7]];
@@ -387,6 +398,7 @@ impl CoreServices {
     }
 }
 
+#[derive(Debug)]
 pub enum ElfError {
     Parse(ParseError),
     SectionNotFound,
@@ -402,10 +414,51 @@ impl From<ParseError> for ElfError {
     }
 }
 
-pub unsafe fn transfer_system_table(st: SystemTable<Boot>, h: Handle, build_info: String) {
-    SYSTEM_TABLE = Some(st);
-    HANDLE = Some(h);
-    BUILD_INFO = Some(build_info);
+pub fn status_to_text<'a>(status: Status) -> &'a str {
+    match status {
+        Status::SUCCESS => "The operation completed successfully.",
+        Status::WARN_UNKNOWN_GLYPH => "The program used a character that could not be rendered.",
+        Status::WARN_DELETE_FAILURE => "The program closed a file handle that could not be deleted.",
+        Status::WARN_WRITE_FAILURE => "The program closed a file handle that could not be written.",
+        Status::WARN_BUFFER_TOO_SMALL => "The program encountered a buffer underflow.",
+        Status::WARN_STALE_DATA => "The program contained data that was not updated within the required time.",
+        Status::WARN_FILE_SYSTEM => "The program contained data that was a compatible filesystem.",
+        Status::WARN_RESET_REQUIRED => "The program performed an operation that requires a system restart.",
+        Status::LOAD_ERROR => "The image failed to load.",
+        Status::INVALID_PARAMETER => "A parameter was incorrect.",
+        Status::UNSUPPORTED => "The requested operation is not supported on this system.",
+        Status::BAD_BUFFER_SIZE => "The supplied buffer was of improper size for the request.",
+        Status::BUFFER_TOO_SMALL => "The supplied buffer was not large enough to hold the requested data.",
+        Status::NOT_READY => "The device is not ready.",
+        Status::DEVICE_ERROR => "The device reported a hardware error while attempting the operation.",
+        Status::WRITE_PROTECTED => "The device cannot be written to.",
+        Status::OUT_OF_RESOURCES => "The system has run out of resources.",
+        Status::VOLUME_CORRUPTED => "The file system is corrupted.",
+        Status::VOLUME_FULL => "The file system is full.",
+        Status::NO_MEDIA => "The device does not contain valid media.",
+        Status::MEDIA_CHANGED => "The device has changed media since the last access.",
+        Status::NOT_FOUND => "The requested resource could not be found.",
+        Status::ACCESS_DENIED => "Access is denied.",
+        Status::NO_RESPONSE => "The remote server did not respond to the request.",
+        Status::NO_MAPPING => "No route to the requested device exists.",
+        Status::TIMEOUT => "The request did not complete in a timely manner.",
+        Status::NOT_STARTED => "The program requested a protocol that has not been initialized.",
+        Status::ALREADY_STARTED => "The program initialized a protocol that was already initialized.",
+        Status::ABORTED => "The operation was aborted abruptly.",
+        Status::ICMP_ERROR => "The network connection encountered an ICMP protocol error.",
+        Status::TFTP_ERROR => "The network connection encountered a TFTP protocol error.",
+        Status::PROTOCOL_ERROR => "The network connection encountered a protocol error.",
+        Status::INCOMPATIBLE_VERSION => "The function is not compatible with the requested version.",
+        Status::SECURITY_VIOLATION => "The operation constitutes a violation of the security policy.",
+        Status::CRC_ERROR => "The operation failed a consistency check.",
+        Status::END_OF_MEDIA => "The device has no more data to provide.",
+        Status::END_OF_FILE => "The file has no more data to provide.",
+        Status::INVALID_LANGUAGE => "The requested language is invalid.",
+        Status::COMPROMISED_DATA => "The data has not been securely validated and could be compromised.",
+        Status::IP_ADDRESS_CONFLICT => "The network address allocation has led to a conflict.",
+        Status::HTTP_ERROR => "The network connection encountered an HTTP protocol error.",
+        _ => "An unknown system error has occurred."
+    }
 }
 
 #[derive(Debug)]

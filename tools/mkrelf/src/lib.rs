@@ -10,10 +10,10 @@ pub fn pe_to_elf(name: &str, context: u32) {
 
     let section_id = object.add_section(Vec::new(), b".note.tag".to_vec(), SectionKind::Note);
 
-    let note_name = b"BunnyOS\0";
+    let note_name = b"Russet \0";
     let note_type = 1u32;
 
-    let abi_version = 1u32;
+    let abi_version = 2u32;
 
     let crc: crc::Crc<u32> = crc::Crc::<u32>::new(&crc::CRC_32_BZIP2);
     let checksum = crc.checksum(&original);

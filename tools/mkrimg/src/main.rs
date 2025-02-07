@@ -1,6 +1,6 @@
 use std::fs;
 use std::path::PathBuf;
-use mkbelf::pe_to_elf;
+use mkrelf::pe_to_elf;
 
 fn place(source: &str, target: &str) {
     println!("{source}");
@@ -25,18 +25,18 @@ fn dir(name: &str) {
 }
 
 fn main() {
-    println!("mkbimg - Generate a working BunnyOS system image from compiled files");
+    println!("mkrimg - Generate a working Russet system image from compiled files");
 
     dir("./esp/efi/boot");
-    place("./os/target/x86_64-unknown-uefi/debug/bunnyloader.efi", "./esp/efi/boot/bootx64.efi");
+    place("./os/target/x86_64-unknown-uefi/debug/rouse.efi", "./esp/efi/boot/bootx64.efi");
 
-    dir("./esp/bunny/boot");
-    place("./os/target/x86_64-unknown-uefi/debug/bunnycore.efi", "./esp/bunny/boot/kernel");
-    pe_to_elf("./esp/bunny/boot/kernel", 1);
+    dir("./esp/rootfs/System");
+    place("./os/target/x86_64-unknown-uefi/debug/velm.efi", "./esp/rootfs/System/Kernel");
+    pe_to_elf("./esp/rootfs/System/Kernel", 1);
 
-    dir("./esp/bunny/bin");
-    place("./os/target/x86_64-unknown-uefi/debug/rabbinit.efi", "./esp/bunny/bin/init");
-    pe_to_elf("./esp/bunny/bin/init", 1);
+    dir("./esp/rootfs/System/Programs");
+    place("./os/target/x86_64-unknown-uefi/debug/sable.efi", "./esp/rootfs/System/Init");
+    pe_to_elf("./esp/rootfs/System/Init", 1);
 
     for program in fs::read_dir("./os/programs").unwrap() {
         let entry = program.unwrap();
@@ -44,7 +44,7 @@ fn main() {
         let name = name_os.to_str().unwrap();
 
         place(&format!("./os/target/x86_64-unknown-uefi/debug/{name}.efi"),
-        &format!("./esp/bunny/bin/{name}"));
-        pe_to_elf(&format!("./esp/bunny/bin/{name}"), 2);
+        &format!("./esp/rootfs/System/Programs/{name}"));
+        pe_to_elf(&format!("./esp/rootfs/System/Programs/{name}"), 2);
     }
 }

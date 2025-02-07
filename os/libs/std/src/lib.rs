@@ -3,7 +3,7 @@
 pub extern crate alloc;
 
 use uefi::prelude::{Boot, SystemTable};
-use bunnyos_common::{transfer_system_table, CoreServices};
+use russet_common::CoreServices;
 
 pub mod prelude;
 pub use alloc::boxed;
@@ -77,10 +77,11 @@ pub use core::write;
 pub use core::writeln;
 use uefi::Handle;
 
+#[allow(dead_code)]
 pub(crate) static mut CORE_SERVICES: Option<CoreServices> = None;
 
 pub unsafe fn init(mut system_table: SystemTable<Boot>, image: Handle) {
     uefi::helpers::init(&mut system_table).unwrap();
-    transfer_system_table(system_table.unsafe_clone(), image.clone(), String::new());
-    let _ = CoreServices::init(system_table, false);
+    let mut core = CoreServices::init(system_table, false);
+    core.transfer_system_table(image.clone(), String::new());
 }

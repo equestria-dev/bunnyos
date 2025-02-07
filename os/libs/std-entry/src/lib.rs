@@ -4,7 +4,7 @@ use quote::quote;
 use syn::ItemFn;
 
 #[proc_macro_attribute]
-pub fn bunny_entry(_args: TokenStream, input: TokenStream) -> TokenStream {
+pub fn russet_entry(_args: TokenStream, input: TokenStream) -> TokenStream {
     let parsed = syn::parse::<ItemFn>(input.clone()).unwrap();
     let name = parsed.sig.ident;
     let input: proc_macro2::TokenStream = input.into();
@@ -13,8 +13,8 @@ pub fn bunny_entry(_args: TokenStream, input: TokenStream) -> TokenStream {
         use uefi::prelude::*;
         #input
 
-        #[entry] fn __bunny_main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
-            unsafe { bstd::init(system_table, _image); }
+        #[entry] fn __russet_main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
+            unsafe { rstd::init(system_table, _image); }
             #name();
             Status::SUCCESS
         }

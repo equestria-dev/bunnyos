@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="EMPTY_MODULE" version="4">
-  <component name="NewModuleRootManager">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/commands/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/toolkit/src" isTestSource="false" />
@@ -15,8 +16,8 @@
       <sourceFolder url="file://$MODULE_DIR$/os/system/bootloader/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/os/system/init/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/os/system/kernel/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/tools/mkbimg/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/tools/mkbelf/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tools/mkrelf/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tools/mkrimg/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/esp" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/firmware" />

@@ -1,9 +1,10 @@
 #![no_std]
 #![no_main]
 
-use bstd::prelude::*;
+use rstd::prelude::*;
 
-#[bunny_entry]
+#[russet_entry]
 fn main() {
     println!("Hello world!");
+    panic!("Woopsie!");
 }

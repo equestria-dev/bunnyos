@@ -13,7 +13,7 @@ pub struct CoreFileSystem {
 impl From<SystemTable<Boot>> for CoreFileSystem {
     fn from(value: SystemTable<Boot>) -> Self {
         Self {
-            cwd: String::from("\\bunny"),
+            cwd: String::from("\\rootfs"),
             system_table: value
         }
     }
@@ -27,8 +27,8 @@ impl CoreFileSystem {
     }
 
     pub fn get_cwd(&self) -> String {
-        if self.cwd.starts_with("\\bunny") {
-            let cwd = self.cwd[6..].replace("\\", "/");
+        if self.cwd.starts_with("\\rootfs") {
+            let cwd = self.cwd[7..].replace("\\", "/");
             if cwd.trim() == "" {
                 String::from("/")
             } else {
@@ -49,8 +49,8 @@ impl CoreFileSystem {
         } else {
             self.cwd = self.resolve_path(dir);
 
-            if !self.cwd.starts_with("\\bunny\\") {
-                self.cwd = String::from("\\bunny");
+            if !self.cwd.starts_with("\\rootfs\\") {
+                self.cwd = String::from("\\rootfs");
             }
 
             Ok(())

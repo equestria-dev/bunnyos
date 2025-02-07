@@ -5,7 +5,7 @@ use alloc::format;
 use alloc::string::{String, ToString};
 use uefi::prelude::*;
 use uefi::{print, println};
-use bunnyos_common::{transfer_system_table, CoreServices, DEFAULT_SHELL};
+use russet_common::{CoreServices, DEFAULT_SHELL};
 
 extern crate alloc;
 
@@ -16,19 +16,17 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
 
     unsafe {
         core = CoreServices::init(system_table, true);
-        let st = core.get_system_table();
-
-        transfer_system_table(st.unsafe_clone(), _image.clone(), build_info::format!(
+        core.transfer_system_table(_image.clone(), build_info::format!(
             "Version: {} {}\nCompiler: {}\nRevision: {}",
             $.crate_info.name, $.crate_info.version, $.compiler, $.timestamp
         ).to_string());
     }
 
-    if let Ok(_) = core.get_shared_variable("BunnyOS.Init") {
-        panic!("Attempted to start more than one init.");
+    if let Ok(_) = core.get_shared_variable("Russet.Init") {
+        panic!("UNEXPECTED_INITIALIZATION_CALL");
     }
 
-    core.set_shared_variable("BunnyOS.Init",
+    core.set_shared_variable("Russet.Init",
         build_info::format!("{}", $.crate_info.version).as_bytes())
         .unwrap();
 
@@ -37,9 +35,9 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
     loop {
         println!();
 
-        let string = format!("\\bunny{}", path.replace("/", "\\"));
+        let string = format!("\\rootfs{}", path.replace("/", "\\"));
         if let Err(_) = core.execute_user_binary(&string) {
-            println!("Could not run command interpreter at {path}.");
+            println!("\nThe command interpreter at \"{path}\" could not be started.");
             loop {
                 print!("Please enter the path to a valid command interpreter: ");
                 path = core.readline();
@@ -48,7 +46,7 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
                 }
             }
         } else {
-            panic!("User mode interface has died.");
+            panic!("NO_USER_MODE_CONTEXT");
         }
     }
 }
