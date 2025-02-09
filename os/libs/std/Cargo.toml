@@ -8,3 +8,4 @@ uefi = { version = "0.28.0", features = ["alloc"] }
 uefi-services = { version = "0.25.0", features = [], default-features = false }
 russet-common = { path = "../common" }
 rstd-entry = { path = "../std-entry" }
+std_detect = "0.1.5"

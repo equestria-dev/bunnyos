@@ -1,10 +1,12 @@
 #![no_std]
 #![no_main]
 
+use rstd::dbg;
 use rstd::prelude::*;
 
 #[russet_entry]
 fn main() {
-    println!("Hello world!");
-    panic!("Woopsie!");
+    eprintln!("Hello world!");
+    let h = dbg!(1 + 1) + 1;
+    panic!("Woopsie! {h}");
 }

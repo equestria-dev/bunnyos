@@ -12,12 +12,12 @@
       <sourceFolder url="file://$MODULE_DIR$/os/libs/std-entry/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/os/libs/std/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/os/programs/demo/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/os/programs/sh/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/os/system/bootloader/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/os/system/init/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/os/system/kernel/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tools/mkrelf/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tools/mkrimg/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/os/programs/command-interpreter/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/esp" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/firmware" />

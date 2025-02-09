@@ -168,6 +168,12 @@ dependencies = [
 
 [[package]]
 name = "cfg-if"
+version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
+
+[[package]]
+name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
@@ -183,6 +189,18 @@ dependencies = [
  "num-traits",
  "serde",
  "windows-targets",
+]
+
+[[package]]
+name = "command-interpreter"
+version = "0.1.0"
+dependencies = [
+ "build-info",
+ "build-info-build",
+ "log",
+ "russet-common",
+ "uefi",
+ "uefi-services",
 ]
 
 [[package]]
@@ -508,6 +526,7 @@ version = "0.1.0"
 dependencies = [
  "rstd-entry",
  "russet-common",
+ "std_detect",
  "uefi",
  "uefi-services",
 ]
@@ -600,15 +619,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "sh"
-version = "0.1.0"
+name = "std_detect"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7eb61d880d05bbfd84252b0193ac28d4ad71f9b4e1d44a3bac3ee822755d1984"
 dependencies = [
- "build-info",
- "build-info-build",
- "log",
- "russet-common",
- "uefi",
- "uefi-services",
+ "cfg-if 0.1.10",
+ "libc",
 ]
 
 [[package]]
@@ -684,7 +701,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a9c0a56dc9fed2589aad6ddca11c2584968fc21f227b5d7083bb8961d26a69fa"
 dependencies = [
  "bitflags",
- "cfg-if",
+ "cfg-if 1.0.0",
  "log",
  "ptr_meta",
  "ucs2",
@@ -792,7 +809,7 @@ version = "0.2.92"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4be2531df63900aeb2bca0daaaddec08491ee64ceecbee5076636a3b026795a8"
 dependencies = [
- "cfg-if",
+ "cfg-if 1.0.0",
  "wasm-bindgen-macro",
 ]
 

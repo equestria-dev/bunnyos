@@ -6,6 +6,8 @@ use uefi::prelude::{Boot, SystemTable};
 use russet_common::CoreServices;
 
 pub mod prelude;
+mod macros;
+
 pub use alloc::boxed;
 pub use alloc::borrow;
 pub use core::char;
@@ -45,6 +47,7 @@ pub use core::sync;
 pub use core::task;
 pub use core::time;
 pub use alloc::vec;
+pub use core::arch;
 pub use core::assert;
 pub use core::assert_eq;
 pub use core::assert_ne;
@@ -58,7 +61,6 @@ pub use core::debug_assert_ne;
 pub use core::env;
 pub use core::file;
 pub use alloc::format;
-use alloc::string::String;
 pub use core::format_args;
 pub use core::include;
 pub use core::include_bytes;
@@ -75,6 +77,12 @@ pub use core::unimplemented;
 pub use core::unreachable;
 pub use core::write;
 pub use core::writeln;
+pub use std_detect::is_x86_feature_detected;
+
+#[allow(unused_imports)]
+pub use crate::macros::*;
+
+use alloc::string::String;
 use uefi::Handle;
 
 #[allow(dead_code)]

@@ -34,7 +34,7 @@ pub const GUID: Guid = guid!("cf3dd8e5-823e-4d06-8caf-d0fd9e49f588");
 pub const VENDOR: VariableVendor = VariableVendor(GUID);
 pub const OS_VERSION: &str = "0.1";
 pub const SUPPORTED_ABI: [u32; 1] = [2];
-pub const DEFAULT_SHELL: &str = "/System/Programs/sh";
+pub const DEFAULT_SHELL: &str = "/System/Programs/CommandInterpreter";
 pub const DEFAULT_KERNEL: &str = "/System/Kernel";
 
 pub struct CoreServices {

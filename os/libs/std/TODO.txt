@@ -1,5 +1,4 @@
 TO IMPLEMENT
-- arch
 - env
 - fs
 - io
@@ -7,14 +6,16 @@ TO IMPLEMENT
 - path
 - prelude
 - process
-- dbg!
+
+IMPLEMENTED
 - eprint!
 - eprintln!
-- is_x86_feature_detected!
+- dbg!
 
 RE-EXPORTED
 - alloc
 - any
+- arch
 - array
 - ascii
 - borrow
@@ -86,3 +87,4 @@ MAYBE IMPLEMENT
 
 NOT IMPLEMENTING
 - net
+- is_x86_feature_detected!

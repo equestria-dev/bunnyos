@@ -44,19 +44,19 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
         match cmd {
             Err(_) => println!("Illegal command."),
             Ok(cmd) => match cmd.command.as_str() {
-                "pwd" => {
+                "GetCurrentDirectory" => {
                     println!("{pwd}");
                 },
-                "exit" => {
+                "Exit" => {
                     return Status::SUCCESS;
                 },
-                "crash" => {
+                "_Crash" => {
                     core.execute_kmode_binary("/System/Kernel", true).expect("TODO: panic message");
                 },
-                "echo" => {
+                "Print" => {
                     println!("{}", cmd.names.join(" "));
                 },
-                "cd" => {
+                "ChangeDirectory" => {
                     if cmd.names.len() == 1 {
                         let mut path = core.fs.resolve_path(&cmd.names[0]);
                         if path == "" || !path.starts_with("\\rootfs\\") {
@@ -80,7 +80,7 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
                         println!("Invalid command use.");
                     }
                 },
-                "which" => {
+                "GetCommandFile" => {
                     for name in cmd.names {
                         let mut path: PathBuf = PathBuf::from(cstr16!("/rootfs/System/Programs"));
 
