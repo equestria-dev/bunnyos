@@ -18,7 +18,7 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
         core = CoreServices::init(system_table, true);
         let mut st = core.get_system_table();
 
-        core.transfer_system_table(_image.clone(), build_info::format!(
+        core.transfer_system_table(_image, build_info::format!(
             "Version: {} {}\nCompiler: {}\nRevision: {}",
             $.crate_info.name, $.crate_info.version, $.compiler, $.timestamp
         ).to_string());
@@ -29,7 +29,7 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
             .expect("Failed to change cursor status");
     }
 
-    if let Ok(_) = core.get_shared_variable("Russet.Bootloader") {
+    if core.get_shared_variable("Russet.Bootloader").is_ok() {
         panic!("UNEXPECTED_INITIALIZATION_CALL");
     }
 
@@ -43,15 +43,13 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
         println!("{} ({path})", &build_info::format!("rouse bootloader {}", $.crate_info.version));
 
         if let Err(e) = core.execute_kmode_binary(&path, false) {
-            match e {
-                _ => {
-                    println!("\nThe kernel \"{path}\" could not be loaded at this time.");
-                    loop {
-                        print!("Rouse> ");
-                        path = core.readline();
-                        if path.trim() != "" {
-                            break;
-                        }
+            {
+                println!("\nThe kernel \"{path}\" could not be loaded at this time.");
+                loop {
+                    print!("Rouse> ");
+                    path = core.readline();
+                    if path.trim() != "" {
+                        break;
                     }
                 }
             }
