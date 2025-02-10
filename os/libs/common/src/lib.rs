@@ -78,6 +78,7 @@ unsafe fn panic(info: &PanicInfo) -> ! {
 }
 
 impl CoreServices {
+    #[allow(clippy::missing_safety_doc)]
     pub unsafe fn init(value: SystemTable<Boot>, panic: bool) -> Self {
         FATAL_PANIC = panic;
         Self {
@@ -86,6 +87,7 @@ impl CoreServices {
         }
     }
 
+    #[allow(clippy::missing_safety_doc)]
     pub unsafe fn transfer_system_table(&mut self, h: Handle, fallback_build_info: String) {
         SYSTEM_TABLE = Some(self.get_system_table());
         HANDLE = Some(h);
@@ -97,6 +99,7 @@ impl CoreServices {
         }
     }
 
+    #[allow(clippy::missing_safety_doc)]
     pub unsafe fn get_system_table(&self) -> SystemTable<Boot> {
         self.system_table.unsafe_clone()
     }
@@ -112,7 +115,7 @@ impl CoreServices {
         )
     }
 
-    pub fn get_shared_variable<'a>(&mut self, name: &str) -> Result<(Vec<u8>, VariableAttributes), Error> {
+    pub fn get_shared_variable(&mut self, name: &str) -> Result<(Vec<u8>, VariableAttributes), Error> {
         let mut buf1 = vec![0; name.len() + 1];
         let mut buf2 = [0u8; 65536];
 
@@ -126,7 +129,7 @@ impl CoreServices {
         }
     }
 
-    pub fn delete_shared_variable<'a>(&mut self, name: &str) -> uefi::Result {
+    pub fn delete_shared_variable(&mut self, name: &str) -> uefi::Result {
         let mut buf = vec![0; name.len() + 1];
         self.system_table.runtime_services().delete_variable(
             CStr16::from_str_with_buf(name, &mut buf).unwrap_or(cstr16!("")),
@@ -188,7 +191,7 @@ impl CoreServices {
         let string = format!("\\rootfs{}", path.replace("/", "\\"));
         let mut buf: Vec<u16> = vec![0; string.len() + 1];
         let cstr16 = CStr16::from_str_with_buf(&string, &mut buf).unwrap();
-        let path: CString16 = CString16::try_from(cstr16).unwrap();
+        let path: CString16 = CString16::from(cstr16);
         let fs: ScopedProtocol<SimpleFileSystem> = boot_services.get_image_file_system(boot_services.image_handle()).unwrap();
         let mut fs = uefi::fs::FileSystem::new(fs);
         fs.read(path.as_ref())
@@ -242,12 +245,10 @@ impl CoreServices {
                             }
                         }
                     }
+                } else if strict {
+                    panic!("BOUND_IMAGE_UNSUPPORTED")
                 } else {
-                    if strict {
-                        panic!("BOUND_IMAGE_UNSUPPORTED")
-                    } else {
-                        Err(ExecBinaryError::Unsupported)
-                    }
+                    Err(ExecBinaryError::Unsupported)
                 }
             },
             Err(e) => {
@@ -284,8 +285,8 @@ impl CoreServices {
     fn get_user_binary(&self, path: &str) -> FileSystemResult<Vec<u8>> {
         let boot_services = self.system_table.boot_services();
         let mut buf: Vec<u16> = vec![0; path.len() + 1];
-        let cstr16 = CStr16::from_str_with_buf(&path, &mut buf).unwrap();
-        let path: CString16 = CString16::try_from(cstr16).unwrap();
+        let cstr16 = CStr16::from_str_with_buf(path, &mut buf).unwrap();
+        let path: CString16 = CString16::from(cstr16);
         let fs: ScopedProtocol<SimpleFileSystem> = boot_services.get_image_file_system(boot_services.image_handle()).unwrap();
         let mut fs = uefi::fs::FileSystem::new(fs);
         fs.read(path.as_ref())
@@ -379,7 +380,7 @@ impl CoreServices {
                     let data = file.section_data(&source_header)?;
 
                     let crc: crc::Crc<u32> = crc::Crc::<u32>::new(&crc::CRC_32_BZIP2);
-                    let calculated_checksum = crc.checksum(&data.0);
+                    let calculated_checksum = crc.checksum(data.0);
 
                     if context != expected_context {
                         Err(ElfError::InvalidContext)
