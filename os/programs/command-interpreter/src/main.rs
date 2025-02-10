@@ -56,6 +56,14 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
                 "Print" => {
                     println!("{}", cmd.names.join(" "));
                 },
+                "Help" => {
+                    println!();
+                    println!("Command interpreter built-in commands:");
+                    println!("    GetCurrentDirectory  - Show current work directory");
+                    println!("    Exit                 - Quit the current interpreter session");
+                    println!("    Print                - Display text on the console");
+                    println!("    GetCommandFile       - Show the file associated with an external command");
+                },
                 "ChangeDirectory" => {
                     if cmd.names.len() == 1 {
                         let mut path = core.fs.resolve_path(&cmd.names[0]);

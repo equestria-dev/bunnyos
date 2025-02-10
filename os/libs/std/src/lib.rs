@@ -77,7 +77,6 @@ pub use core::unimplemented;
 pub use core::unreachable;
 pub use core::write;
 pub use core::writeln;
-pub use std_detect::is_x86_feature_detected;
 
 #[allow(unused_imports)]
 pub use crate::macros::*;
