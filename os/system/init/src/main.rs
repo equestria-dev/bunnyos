@@ -16,13 +16,13 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
 
     unsafe {
         core = CoreServices::init(system_table, true);
-        core.transfer_system_table(_image.clone(), build_info::format!(
+        core.transfer_system_table(_image, build_info::format!(
             "Version: {} {}\nCompiler: {}\nRevision: {}",
             $.crate_info.name, $.crate_info.version, $.compiler, $.timestamp
         ).to_string());
     }
 
-    if let Ok(_) = core.get_shared_variable("Russet.Init") {
+    if core.get_shared_variable("Russet.Init").is_ok() {
         panic!("UNEXPECTED_INITIALIZATION_CALL");
     }
 
