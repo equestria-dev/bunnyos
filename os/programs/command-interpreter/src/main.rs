@@ -18,7 +18,7 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
 
     unsafe {
         core = CoreServices::init(system_table, true);
-        core.transfer_system_table(_image.clone(), build_info::format!(
+        core.transfer_system_table(_image, build_info::format!(
             "Version: {} {}\nCompiler: {}\nRevision: {}",
             $.crate_info.name, $.crate_info.version, $.compiler, $.timestamp
         ).to_string());
@@ -67,7 +67,7 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
                 "ChangeDirectory" => {
                     if cmd.names.len() == 1 {
                         let mut path = core.fs.resolve_path(&cmd.names[0]);
-                        if path == "" || !path.starts_with("\\rootfs\\") {
+                        if path.is_empty() || !path.starts_with("\\rootfs\\") {
                             path = String::from("\\rootfs");
                         }
 
@@ -80,8 +80,8 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
                         } else {
                             println!("The file \"{}\" could not be found.", cmd.names[0]);
                         }
-                    } else if cmd.names.len() == 0 {
-                        if let Err(_) = core.fs.chdir("\\rootfs\\User") {
+                    } else if cmd.names.is_empty() {
+                        if core.fs.chdir("\\rootfs\\User").is_err() {
                             println!("The file \"/User\" could not be found.");
                         }
                     } else {
@@ -110,12 +110,13 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
                         if core.fs.file_exists(&path.to_string()) && core.fs.is_file(&path.to_string()) {
                             let path = path.to_string();
                             if path.starts_with("\\rootfs") {
-                                let path = path[7..].replace("\\", "/");
-                                println!("{}", if path.trim() == "" {
-                                    String::from("/")
-                                } else {
-                                    path
-                                });
+                                if let Some(path) = path.strip_prefix("\\rootfs") {
+                                    println!("{}", if path.trim() == "" {
+                                        "/"
+                                    } else {
+                                        path
+                                    });
+                                }
                             } else {
                                 println!("//?{}", path.replace("\\", "/"))
                             }
