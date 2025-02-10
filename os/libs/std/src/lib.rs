@@ -87,8 +87,9 @@ use uefi::Handle;
 #[allow(dead_code)]
 pub(crate) static mut CORE_SERVICES: Option<CoreServices> = None;
 
+#[allow(clippy::missing_safety_doc)]
 pub unsafe fn init(mut system_table: SystemTable<Boot>, image: Handle) {
     uefi::helpers::init(&mut system_table).unwrap();
     let mut core = CoreServices::init(system_table, false);
-    core.transfer_system_table(image.clone(), String::new());
+    core.transfer_system_table(image, String::new());
 }
