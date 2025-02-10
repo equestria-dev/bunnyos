@@ -36,7 +36,7 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
         println!();
 
         let string = format!("\\rootfs{}", path.replace("/", "\\"));
-        if let Err(_) = core.execute_user_binary(&string) {
+        if core.execute_user_binary(&string).is_err() {
             println!("\nThe command interpreter at \"{path}\" could not be started.");
             loop {
                 print!("Please enter the path to a valid command interpreter: ");

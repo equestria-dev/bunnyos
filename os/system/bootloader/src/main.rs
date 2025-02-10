@@ -42,15 +42,13 @@ fn main(_image: Handle, mut system_table: SystemTable<Boot>) -> Status {
     loop {
         println!("{} ({path})", &build_info::format!("rouse bootloader {}", $.crate_info.version));
 
-        if let Err(e) = core.execute_kmode_binary(&path, false) {
-            {
-                println!("\nThe kernel \"{path}\" could not be loaded at this time.");
-                loop {
-                    print!("Rouse> ");
-                    path = core.readline();
-                    if path.trim() != "" {
-                        break;
-                    }
+        if core.execute_kmode_binary(&path, false).is_err() {
+            println!("\nThe kernel \"{path}\" could not be loaded at this time.");
+            loop {
+                print!("Rouse> ");
+                path = core.readline();
+                if path.trim() != "" {
+                    break;
                 }
             }
         } else {
